@@ -11,6 +11,8 @@ Your Endless Stories (YES!) is a child-safe, age-aware Streamlit storybook gener
 - Transparent 100-point score model inferred from quiz answers and completion
 - Local SQLite persistence for profiles, stories, sessions, and progress
 - Parent dashboard with score trend, recent sessions, strengths, weak areas, and recommendations
+- Side-by-side reader comparison across two child profiles for parent review
+- One-click judge demo path that walks through reader selection, storybook reading, quiz scoring, and dashboard proof
 - Seed data and demo fallback for hackathon judging without live OCI credentials
 
 ## Project Structure
@@ -43,7 +45,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-The app creates `data/yes.db` automatically and loads the seed profile the first time the database is empty.
+The app creates `data/yes.db` automatically and loads the seed profiles. Existing local databases are updated with missing demo profiles by name, without deleting parent-created data.
 
 ## OCI Generative AI Configuration
 
@@ -97,10 +99,15 @@ The saved score includes strengths, weak areas, and one recommendation for next 
 ## Demo Flow
 
 1. Open the app with `streamlit run app.py`.
-2. Select the seeded child profile, Mia, or create a new profile.
+2. Select a seeded child profile, Mia or Leo, or create a new profile.
 3. Choose an existing storybook or generate a new one.
 4. Read the story, open the quiz, and answer the questions.
 5. Review the Proficiency Dashboard for score trend, strengths, weak areas, and next practice.
+6. Use Compare readers on the dashboard to compare two child profiles side by side.
+
+## Judge Demo Path
+
+Use `Start Judge Demo` on the home page for deterministic browser verification. The app loads Mia, shows the reader-pick step, opens the seeded storybook `Mia and the Moon Cat`, supports the reading check, saves a session score, and links to the parent dashboard.
 
 ## Local Data
 

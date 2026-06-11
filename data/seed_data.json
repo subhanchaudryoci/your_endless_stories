@@ -9,82 +9,82 @@
       "created_at": "2026-05-20T16:00:00+00:00",
       "stories": [
         {
-          "title": "Mia and the Moon Cat Map",
+          "title": "Mia and the Moon Cat",
           "theme": "space and cats",
           "source": "seed",
           "created_at": "2026-06-01T16:00:00+00:00",
-          "story_text": "Mia drew a silver moon on the back of her notebook. Beside it, she drew a small cat with a star on its collar. That night, the cat in the picture blinked and tapped the page with one paw. A tiny map appeared. The first clue said, \"Find the quiet crater.\" Mia read the clue twice. She sounded out crater in two parts: cra-ter. Then she followed a dotted line past three bright rocks. At the quiet crater, Mia found a blue flag. The flag said, \"Look for the clue that glows.\" Mia waited, watched, and noticed a soft light under a moon shell. Inside was the last clue: \"Strong readers use details.\" Mia smiled. She used the map, the flag, and the glowing shell to find the moon cat's home. The cat purred and gave Mia a bookmark shaped like a star.",
+          "story_text": "Mia loved to draw pictures of space. One night, she drew a big yellow moon and a fluffy cat sitting on it. \"I wish I could visit the moon,\" Mia said. Suddenly, her drawing started to glow. The moon cat jumped out of the paper and meowed softly. \"Hello, Mia,\" the cat said. \"I'm Luna. Hop on my back, and let's fly to the moon!\" Mia held tight as Luna soared through the stars. When they landed, Mia saw craters and sparkling rocks. Luna explained, \"Craters are big holes made by meteorites. They're like giant footprints!\" Mia laughed and drew a picture of the craters. Then they found a shiny crystal and a tiny moon rabbit. Mia felt proud because she used her imagination and noticed details. When it was time to go home, Luna gave Mia a star as a gift. \"Keep drawing, Mia. Your imagination can take you anywhere!\" Mia smiled and hugged her new friend.",
           "vocabulary": [
             {
               "word": "crater",
-              "meaning": "a bowl-shaped hole on the moon",
+              "meaning": "a big bowl-shaped hole on the moon",
               "hint": "Break it into cra-ter",
               "pattern": "two syllables"
             },
             {
-              "word": "clue",
-              "meaning": "a hint that helps solve something",
-              "hint": "The ue sounds like oo",
-              "pattern": "ue vowel team"
-            },
-            {
-              "word": "glows",
-              "meaning": "shines with soft light",
+              "word": "glow",
+              "meaning": "to shine with soft light",
               "hint": "Starts with the gl blend",
               "pattern": "gl blend"
             },
             {
-              "word": "details",
-              "meaning": "small pieces of information",
-              "hint": "Say de-tails",
-              "pattern": "vowel team ai"
+              "word": "meteorites",
+              "meaning": "rocks from space that land on a moon or planet",
+              "hint": "Say me-te-or-ites slowly",
+              "pattern": "multisyllable word"
             },
             {
-              "word": "bookmark",
-              "meaning": "something that holds your place in a book",
-              "hint": "Book plus mark",
-              "pattern": "compound word"
+              "word": "crystal",
+              "meaning": "a shiny stone",
+              "hint": "Tap crys-tal",
+              "pattern": "two syllables"
+            },
+            {
+              "word": "imagination",
+              "meaning": "the power to picture new ideas in your mind",
+              "hint": "Say im-ag-in-a-tion",
+              "pattern": "long word"
             }
           ],
-          "tricky_words": ["crater", "clue", "glows", "details", "bookmark"],
+          "tricky_words": ["crater", "glow", "meteorites", "crystal", "imagination"],
           "questions": [
             {
               "question_type": "literal",
-              "question": "What appeared on Mia's notebook?",
-              "options": ["A tiny map", "A lunch menu", "A rain cloud"],
-              "answer": "A tiny map",
-              "explanation": "The moon cat tapped the page and a tiny map appeared."
+              "question": "What did Mia draw one night?",
+              "options": ["A big yellow moon and a fluffy cat", "A red boat and a fish", "A green tree and a bird"],
+              "answer": "A big yellow moon and a fluffy cat",
+              "explanation": "Mia drew a big yellow moon with a fluffy cat sitting on it."
             },
             {
               "question_type": "sequence",
-              "question": "What did Mia find before the moon shell?",
-              "options": ["A blue flag", "A red bike", "A sleeping dog"],
-              "answer": "A blue flag",
-              "explanation": "Mia found the blue flag at the quiet crater before seeing the shell."
+              "question": "What happened after the moon cat jumped out of the paper?",
+              "options": ["Mia rode Luna to the moon", "Mia closed her notebook", "Mia went to school"],
+              "answer": "Mia rode Luna to the moon",
+              "explanation": "After Luna jumped out, Mia hopped on her back and flew to the moon."
             },
             {
               "question_type": "vocabulary",
               "question": "What does crater mean in the story?",
-              "options": ["A bowl-shaped hole", "A kind of snack", "A loud song"],
-              "answer": "A bowl-shaped hole",
-              "explanation": "A crater is a bowl-shaped hole on the moon."
+              "options": ["A big hole on the moon", "A kind of snack", "A loud song"],
+              "answer": "A big hole on the moon",
+              "explanation": "Luna explains that craters are big holes made by meteorites."
             },
             {
               "question_type": "inference",
-              "question": "Why did Mia read the first clue twice?",
-              "options": ["To understand it better", "To erase the words", "To make the cat sleep"],
-              "answer": "To understand it better",
-              "explanation": "Rereading helped Mia figure out what to do next."
+              "question": "Why did Mia feel proud on the moon?",
+              "options": ["She used her imagination and noticed details", "She forgot her drawing", "She hid from Luna"],
+              "answer": "She used her imagination and noticed details",
+              "explanation": "Mia felt proud because she imagined the adventure and paid attention to what she saw."
             }
           ],
           "sessions": [
             {
               "created_at": "2026-06-02T16:00:00+00:00",
               "answers": {
-                "0": "A tiny map",
-                "1": "A red bike",
-                "2": "A bowl-shaped hole",
-                "3": "To understand it better"
+                "0": "A big yellow moon and a fluffy cat",
+                "1": "Mia closed her notebook",
+                "2": "A big hole on the moon",
+                "3": "She used her imagination and noticed details"
               },
               "quiz_score": 75,
               "total_score": 74,
@@ -106,10 +106,10 @@
             {
               "created_at": "2026-06-05T16:00:00+00:00",
               "answers": {
-                "0": "A tiny map",
-                "1": "A blue flag",
+                "0": "A big yellow moon and a fluffy cat",
+                "1": "Mia rode Luna to the moon",
                 "2": "A kind of snack",
-                "3": "To understand it better"
+                "3": "She used her imagination and noticed details"
               },
               "quiz_score": 75,
               "total_score": 79,
@@ -131,10 +131,10 @@
             {
               "created_at": "2026-06-08T16:00:00+00:00",
               "answers": {
-                "0": "A tiny map",
-                "1": "A blue flag",
-                "2": "A bowl-shaped hole",
-                "3": "To understand it better"
+                "0": "A big yellow moon and a fluffy cat",
+                "1": "Mia rode Luna to the moon",
+                "2": "A big hole on the moon",
+                "3": "She used her imagination and noticed details"
               },
               "quiz_score": 100,
               "total_score": 86,
@@ -156,7 +156,163 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Leo",
+      "age": 8,
+      "interests": ["soccer", "robots", "mysteries"],
+      "reading_goal": "Build vocabulary confidence and explain story clues with evidence",
+      "baseline_score": 72,
+      "created_at": "2026-05-22T16:00:00+00:00",
+      "stories": [
+        {
+          "title": "Leo and the Robot Goalkeeper",
+          "theme": "soccer and robots",
+          "source": "seed",
+          "created_at": "2026-06-03T16:00:00+00:00",
+          "story_text": "Leo carried his soccer ball to the quiet field behind the library. Near the goal, he found a small robot with one blinking blue eye. The robot held up a card that said, \"Can you solve my training mystery?\" Leo grinned and read the card aloud. The first clue was on the net: \"Notice the pattern.\" Leo saw three red marks, then three blue marks, then three red marks again. He aimed at the next blue mark and scored. The robot spun in a happy circle. The second clue was hidden under a cone. It said, \"Explain your evidence.\" Leo said, \"The colors repeat, so blue comes next.\" The robot opened its metal hands and showed Leo a golden whistle. \"You used details like a detective,\" it beeped. Leo practiced one more shot, then wrote the pattern in his notebook so he could remember it tomorrow.",
+          "vocabulary": [
+            {
+              "word": "goalkeeper",
+              "meaning": "the player who protects the goal",
+              "hint": "Goal plus keeper",
+              "pattern": "compound word"
+            },
+            {
+              "word": "mystery",
+              "meaning": "something that needs to be solved",
+              "hint": "Say mys-ter-y",
+              "pattern": "three syllables"
+            },
+            {
+              "word": "pattern",
+              "meaning": "something that repeats in a clear way",
+              "hint": "Tap pat-tern",
+              "pattern": "closed syllables"
+            },
+            {
+              "word": "evidence",
+              "meaning": "details that help prove an answer",
+              "hint": "Say ev-i-dence",
+              "pattern": "three syllables"
+            },
+            {
+              "word": "detective",
+              "meaning": "a person who solves clues",
+              "hint": "Look for the long e sound",
+              "pattern": "long vowel"
+            }
+          ],
+          "tricky_words": ["goalkeeper", "mystery", "pattern", "evidence", "detective"],
+          "questions": [
+            {
+              "question_type": "literal",
+              "question": "Where did Leo find the robot?",
+              "options": ["Near the goal", "Inside a bus", "At the beach"],
+              "answer": "Near the goal",
+              "explanation": "Leo found the robot near the goal on the quiet field."
+            },
+            {
+              "question_type": "sequence",
+              "question": "What did Leo do after seeing the color pattern?",
+              "options": ["He aimed at the next blue mark", "He went home", "He erased the card"],
+              "answer": "He aimed at the next blue mark",
+              "explanation": "Leo noticed the repeating colors and aimed at the next blue mark."
+            },
+            {
+              "question_type": "vocabulary",
+              "question": "What does evidence mean in the story?",
+              "options": ["Details that prove an answer", "A kind of whistle", "A loud cheer"],
+              "answer": "Details that prove an answer",
+              "explanation": "Evidence means details that help prove an answer."
+            },
+            {
+              "question_type": "inference",
+              "question": "Why did the robot give Leo the golden whistle?",
+              "options": ["Leo used details to solve the clues", "Leo ran away from practice", "Leo forgot the pattern"],
+              "answer": "Leo used details to solve the clues",
+              "explanation": "The robot rewarded Leo because he explained the pattern with evidence."
+            }
+          ],
+          "sessions": [
+            {
+              "created_at": "2026-06-04T16:00:00+00:00",
+              "answers": {
+                "0": "Near the goal",
+                "1": "He aimed at the next blue mark",
+                "2": "A kind of whistle",
+                "3": "Leo used details to solve the clues"
+              },
+              "quiz_score": 75,
+              "total_score": 77,
+              "score": {
+                "phonics_decoding": 13,
+                "fluency": 15,
+                "comprehension": 30,
+                "independence": 12,
+                "consistency": 7,
+                "total": 77,
+                "strengths": ["Fluency", "Independence"],
+                "weak_areas": ["Phonics and decoding", "Comprehension"],
+                "recommendation": "Review the vocabulary word before Leo answers the vocabulary question.",
+                "details": {
+                  "quiz_percent": 75
+                }
+              }
+            },
+            {
+              "created_at": "2026-06-07T16:00:00+00:00",
+              "answers": {
+                "0": "Near the goal",
+                "1": "He aimed at the next blue mark",
+                "2": "Details that prove an answer",
+                "3": "Leo used details to solve the clues"
+              },
+              "quiz_score": 100,
+              "total_score": 88,
+              "score": {
+                "phonics_decoding": 20,
+                "fluency": 15,
+                "comprehension": 40,
+                "independence": 10,
+                "consistency": 3,
+                "total": 88,
+                "strengths": ["Comprehension", "Phonics and decoding", "Fluency"],
+                "weak_areas": ["Consistency"],
+                "recommendation": "Keep the same short practice rhythm and compare the next score to this result.",
+                "details": {
+                  "quiz_percent": 100
+                }
+              }
+            },
+            {
+              "created_at": "2026-06-10T16:00:00+00:00",
+              "answers": {
+                "0": "Near the goal",
+                "1": "He aimed at the next blue mark",
+                "2": "Details that prove an answer",
+                "3": "Leo used details to solve the clues"
+              },
+              "quiz_score": 100,
+              "total_score": 91,
+              "score": {
+                "phonics_decoding": 20,
+                "fluency": 15,
+                "comprehension": 40,
+                "independence": 12,
+                "consistency": 4,
+                "total": 91,
+                "strengths": ["Comprehension", "Phonics and decoding", "Fluency", "Independence"],
+                "weak_areas": ["Consistency"],
+                "recommendation": "Give Leo one slightly longer story and ask him to explain the evidence aloud.",
+                "details": {
+                  "quiz_percent": 100
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
-

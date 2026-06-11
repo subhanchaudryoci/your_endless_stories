@@ -21,6 +21,9 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = APP_ROOT / "data"
 DEFAULT_DB_PATH = DATA_DIR / "yes.db"
 SEED_PATH = DATA_DIR / "seed_data.json"
+JUDGE_DEMO_CHILD_NAME = "Mia"
+JUDGE_DEMO_STORY_TITLE = "Mia and the Moon Cat"
+JUDGE_DEMO_QUESTION = "What did Mia draw one night?"
 
 
 def db_path() -> Path:
@@ -82,8 +85,11 @@ def init_db(seed: bool = True) -> None:
             """
         )
         child_count = conn.execute("SELECT COUNT(*) FROM children").fetchone()[0]
-    if seed and child_count == 0:
-        seed_demo_data()
+    if seed:
+        if child_count == 0:
+            seed_demo_data()
+        else:
+            seed_missing_demo_children()
 
 
 def _dumps(value: Any) -> str:
@@ -212,6 +218,15 @@ def list_children() -> list[ChildProfile]:
     return [_child_from_row(row) for row in rows]
 
 
+def find_child_by_name(name: str) -> Optional[ChildProfile]:
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM children WHERE lower(name) = lower(?) ORDER BY id LIMIT 1",
+            (name.strip(),),
+        ).fetchone()
+    return _child_from_row(row) if row else None
+
+
 def get_child(child_id: int) -> Optional[ChildProfile]:
     with connect() as conn:
         row = conn.execute("SELECT * FROM children WHERE id = ?", (child_id,)).fetchone()
@@ -262,6 +277,23 @@ def get_story(story_id: int) -> Optional[StoryBook]:
     with connect() as conn:
         row = conn.execute("SELECT * FROM stories WHERE id = ?", (story_id,)).fetchone()
     return _story_from_row(row) if row else None
+
+
+def find_story_by_title(child_id: int, title: str) -> Optional[StoryBook]:
+    with connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM stories
+            WHERE child_id = ? AND lower(title) = lower(?)
+            ORDER BY datetime(created_at) DESC, id DESC
+            """,
+            (child_id, title.strip()),
+        ).fetchall()
+    for row in rows:
+        story = _story_from_row(row)
+        if any(question.question == JUDGE_DEMO_QUESTION for question in story.questions):
+            return story
+    return _story_from_row(rows[0]) if rows else None
 
 
 def save_session(session: ReadingSession) -> int:
@@ -317,42 +349,107 @@ def profile_stats(child_id: int) -> dict[str, Any]:
     }
 
 
-def seed_demo_data() -> None:
+def _load_seed_payload() -> dict[str, Any]:
     if not SEED_PATH.exists():
-        return
+        return {}
     try:
-        payload = json.loads(SEED_PATH.read_text(encoding="utf-8"))
+        return json.loads(SEED_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return
+        return {}
 
-    for child_data in payload.get("children", []):
-        profile = ChildProfile(
+
+def _seed_story_payload(child_id: int, story_data: dict[str, Any]) -> int:
+    story = StoryBook.from_dict(story_data, child_id=child_id, source=story_data.get("source", "seed"))
+    story_id = save_story(story)
+
+    for session_data in story_data.get("sessions", []):
+        score = _score_from_dict(session_data.get("score", {}))
+        session = ReadingSession(
             id=None,
-            name=child_data["name"],
+            child_id=child_id,
+            story_id=story_id,
+            answers=dict(session_data.get("answers", {})),
+            score=score,
+            quiz_score=float(session_data.get("quiz_score", score.comprehension)),
+            total_score=float(session_data.get("total_score", score.total)),
+            notes=session_data.get("notes", ""),
+            created_at=session_data.get("created_at", utc_now_iso()),
+        )
+        save_session(session)
+    return story_id
+
+
+def _seed_child_payload(child_data: dict[str, Any]) -> int:
+    profile = ChildProfile(
+        id=None,
+        name=child_data["name"],
+        age=int(child_data["age"]),
+        interests=list(child_data.get("interests", [])),
+        reading_goal=child_data.get("reading_goal", "Build reading confidence"),
+        baseline_score=child_data.get("baseline_score"),
+        created_at=child_data.get("created_at", utc_now_iso()),
+    )
+    child_id = create_child(profile)
+
+    for story_data in child_data.get("stories", []):
+        _seed_story_payload(child_id, story_data)
+    return child_id
+
+
+def _seed_missing_stories(child_id: int, child_data: dict[str, Any]) -> None:
+    existing_titles = {story.title.strip().lower() for story in list_stories(child_id, limit=200)}
+    for story_data in child_data.get("stories", []):
+        title = str(story_data.get("title", "")).strip()
+        if not title or title.lower() in existing_titles:
+            continue
+        _seed_story_payload(child_id, story_data)
+        existing_titles.add(title.lower())
+
+
+def seed_missing_demo_children() -> None:
+    payload = _load_seed_payload()
+    existing_children = {child.name.strip().lower(): child for child in list_children()}
+    for child_data in payload.get("children", []):
+        name = str(child_data.get("name", "")).strip()
+        if not name:
+            continue
+        existing_child = existing_children.get(name.lower())
+        if existing_child and existing_child.id:
+            _seed_missing_stories(existing_child.id, child_data)
+            continue
+        child_id = _seed_child_payload(child_data)
+        existing_children[name.lower()] = get_child(child_id) or ChildProfile(
+            id=child_id,
+            name=name,
             age=int(child_data["age"]),
             interests=list(child_data.get("interests", [])),
             reading_goal=child_data.get("reading_goal", "Build reading confidence"),
-            baseline_score=child_data.get("baseline_score"),
-            created_at=child_data.get("created_at", utc_now_iso()),
         )
-        child_id = create_child(profile)
 
+
+def seed_demo_data() -> None:
+    seed_missing_demo_children()
+
+
+def prepare_judge_demo() -> tuple[int, int]:
+    seed_missing_demo_children()
+    child = find_child_by_name(JUDGE_DEMO_CHILD_NAME)
+    if child is None or child.id is None:
+        raise RuntimeError("Judge demo child profile is missing.")
+
+    story = find_story_by_title(child.id, JUDGE_DEMO_STORY_TITLE)
+    if story and story.id and any(question.question == JUDGE_DEMO_QUESTION for question in story.questions):
+        return child.id, story.id
+
+    payload = _load_seed_payload()
+    for child_data in payload.get("children", []):
+        if str(child_data.get("name", "")).strip().lower() != JUDGE_DEMO_CHILD_NAME.lower():
+            continue
         for story_data in child_data.get("stories", []):
-            story = StoryBook.from_dict(story_data, child_id=child_id, source=story_data.get("source", "seed"))
-            story_id = save_story(story)
+            if str(story_data.get("title", "")).strip().lower() == JUDGE_DEMO_STORY_TITLE.lower():
+                story_id = _seed_story_payload(child.id, story_data)
+                return child.id, story_id
 
-            for session_data in story_data.get("sessions", []):
-                score = _score_from_dict(session_data.get("score", {}))
-                session = ReadingSession(
-                    id=None,
-                    child_id=child_id,
-                    story_id=story_id,
-                    answers=dict(session_data.get("answers", {})),
-                    score=score,
-                    quiz_score=float(session_data.get("quiz_score", score.comprehension)),
-                    total_score=float(session_data.get("total_score", score.total)),
-                    notes=session_data.get("notes", ""),
-                    created_at=session_data.get("created_at", utc_now_iso()),
-                )
-                save_session(session)
-
+    if story and story.id:
+        return child.id, story.id
+    raise RuntimeError("Judge demo storybook is missing.")

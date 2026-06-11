@@ -46,7 +46,37 @@ def _question_options(question_answer: str, options: list[str]) -> list[str]:
     return ["Choose an answer"] + choices
 
 
+def _session_result_matches(result: dict[str, object] | None, child_id: int, story_id: int) -> bool:
+    if not result:
+        return False
+    return result.get("child_id") == child_id and result.get("story_id") == story_id
+
+
+def _render_session_result(result: dict[str, object]) -> None:
+    st.success("Session saved")
+    st.metric("Proficiency Score", f"{float(result['total_score']):.0f}/100")
+    score_cols = st.columns(4)
+    score_cols[0].metric("Comprehension", f"{float(result['comprehension']):.0f}/40")
+    score_cols[1].metric("Phonics", f"{float(result['phonics_decoding']):.0f}/20")
+    score_cols[2].metric("Fluency", f"{float(result['fluency']):.0f}/15")
+    score_cols[3].metric("Independence", f"{float(result['independence']):.0f}/15")
+    st.markdown(
+        f'<div class="yes-note"><strong>Recommendation:</strong> {html.escape(str(result["recommendation"]))}</div>',
+        unsafe_allow_html=True,
+    )
+    if st.button("View parent dashboard", type="primary", use_container_width=True):
+        st.session_state["latest_session_id"] = int(result["session_id"])
+        st.session_state["selected_child_id"] = int(result["child_id"])
+        st.session_state["selected_story_id"] = int(result["story_id"])
+        st.switch_page("pages/4_Parent_Dashboard.py")
+
+
 def _render_quiz_form(child, story) -> None:
+    existing_result = st.session_state.get("session_result")
+    if _session_result_matches(existing_result, child.id or 0, story.id or 0):
+        _render_session_result(existing_result)
+        return
+
     with st.form(f"quiz_{child.id}_{story.id}"):
         answers: dict[str, str] = {}
         for index, question in enumerate(story.questions):
@@ -87,12 +117,26 @@ def _render_quiz_form(child, story) -> None:
         st.session_state["latest_session_id"] = session_id
         st.session_state["selected_child_id"] = child.id
         st.session_state["selected_story_id"] = story.id
-        st.switch_page("pages/4_Parent_Dashboard.py")
+        result = {
+            "session_id": session_id,
+            "child_id": child.id or 0,
+            "story_id": story.id or 0,
+            "total_score": score.total,
+            "quiz_score": quiz_percent,
+            "comprehension": score.comprehension,
+            "phonics_decoding": score.phonics_decoding,
+            "fluency": score.fluency,
+            "independence": score.independence,
+            "recommendation": score.recommendation,
+        }
+        st.session_state["session_result"] = result
+        _render_session_result(result)
 
 
 setup_page("Reading Session")
-page_title("Reading Time", "Read the story, then open the quiz when finished.")
-workflow_steps("session")
+open_check_requested = bool(st.session_state.get("open_reading_check"))
+page_title("Reading Time", "Read the story, then complete the Reading Check.")
+workflow_steps("check" if open_check_requested else "session")
 
 generation_notice = st.session_state.pop("generation_notice", None)
 if generation_notice:
@@ -102,6 +146,18 @@ if generation_notice:
 
 child = child_selector("Reader")
 if child:
+    if st.session_state.get("judge_demo_active"):
+        try:
+            judge_child_id, judge_story_id = storage.prepare_judge_demo()
+            st.session_state["selected_child_id"] = judge_child_id
+            st.session_state["selected_story_id"] = judge_story_id
+            if child.id != judge_child_id:
+                st.rerun()
+            st.success("Judge demo active")
+        except RuntimeError as exc:
+            st.error(str(exc))
+
+    open_check_requested = bool(st.session_state.pop("open_reading_check", False))
     stories = storage.list_stories(child.id or 0)
     if not stories:
         st.info("Choose or generate a storybook before reading.")
@@ -148,7 +204,8 @@ if child:
             (
                 '<div class="yes-quiz-ready">'
                 '<strong>Finished reading?</strong>'
-                'Open the quiz when the child is ready. The score is inferred from quiz answers and completion.'
+                '<span> Reading Check</span>'
+                '<div>Answer the story questions when the child is ready. The score is inferred from quiz answers and completion.</div>'
                 '</div>'
             ),
             unsafe_allow_html=True,
@@ -159,9 +216,13 @@ if child:
             def quiz_dialog() -> None:
                 _render_quiz_form(child, story)
 
+            if open_check_requested:
+                quiz_dialog()
             if st.button("I am done reading - start quiz", type="primary", use_container_width=True):
                 quiz_dialog()
         else:
+            if open_check_requested:
+                st.session_state["show_inline_quiz"] = True
             if st.button("I am done reading - start quiz", type="primary", use_container_width=True):
                 st.session_state["show_inline_quiz"] = True
             if st.session_state.get("show_inline_quiz"):

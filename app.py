@@ -27,6 +27,19 @@ def render_home() -> None:
     genai_status_banner(status)
     workflow_steps("profile")
 
+    judge_col, _ = st.columns([0.42, 0.58])
+    with judge_col:
+        if st.button("Start Judge Demo", type="primary", use_container_width=True):
+            try:
+                child_id, story_id = storage.prepare_judge_demo()
+                st.session_state["judge_demo_active"] = True
+                st.session_state["selected_child_id"] = child_id
+                st.session_state["selected_story_id"] = story_id
+                st.session_state.pop("session_result", None)
+                st.switch_page("pages/1_Child_Profile.py")
+            except RuntimeError as exc:
+                st.error(str(exc))
+
     child = child_selector("Choose reader")
 
     if child:

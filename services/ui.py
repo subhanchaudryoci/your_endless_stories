@@ -327,6 +327,44 @@ def setup_page(title: str) -> None:
             color: var(--yes-gold);
             margin-bottom: 0.25rem;
         }
+        .yes-session-summary {
+            background: #fffdf7;
+            border: 1px solid var(--yes-line);
+            border-left: 5px solid var(--yes-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.85rem 0 1rem;
+        }
+        .yes-session-summary h3 {
+            margin: 0 0 0.35rem;
+            color: var(--yes-charcoal);
+        }
+        .yes-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.65rem;
+            margin-top: 0.75rem;
+        }
+        .yes-summary-item {
+            background: #ffffff;
+            border: 1px solid var(--yes-line);
+            border-radius: 8px;
+            padding: 0.7rem;
+        }
+        .yes-summary-label {
+            color: var(--yes-muted);
+            font-size: 0.76rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .yes-summary-value {
+            color: var(--yes-charcoal);
+            font-size: 1.05rem;
+            font-weight: 850;
+            line-height: 1.25;
+            margin-top: 0.18rem;
+        }
         @media (max-width: 760px) {
             .yes-quick-grid {
                 grid-template-columns: 1fr;
@@ -414,8 +452,9 @@ def workflow_steps(active: str) -> None:
     steps = [
         ("profile", "1", "Profile", "Pick or create a reader", "/Child_Profile"),
         ("story", "2", "Storybook", "Choose or generate", "/Generate_Story"),
-        ("session", "3", "Read", "Story plus quiz", "/Reading_Session"),
-        ("dashboard", "4", "Dashboard", "Scores and trends", "/Parent_Dashboard"),
+        ("session", "3", "Read", "Story and word help", "/Reading_Session"),
+        ("check", "4", "Reading Check", "Quiz and scoring", "/Reading_Session"),
+        ("dashboard", "5", "Dashboard", "Scores and trends", "/Parent_Dashboard"),
     ]
     markup = ['<div class="yes-flow">']
     for key, number, title, copy, href in steps:

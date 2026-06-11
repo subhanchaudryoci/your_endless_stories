@@ -24,8 +24,34 @@ workflow_steps("story")
 
 child = child_selector("Reader")
 if child:
+    if st.session_state.get("judge_demo_active"):
+        try:
+            judge_child_id, judge_story_id = storage.prepare_judge_demo()
+            st.session_state["selected_child_id"] = judge_child_id
+            st.session_state["selected_story_id"] = judge_story_id
+            if child.id != judge_child_id:
+                st.rerun()
+            st.success("Judge demo active")
+            st.caption("Mia profile loaded")
+        except RuntimeError as exc:
+            st.error(str(exc))
+
     status = genai_status()
     genai_status_banner(status)
+
+    ready_story_id = st.session_state.get("story_ready_id")
+    if ready_story_id:
+        ready_story = storage.get_story(int(ready_story_id))
+        if ready_story and ready_story.child_id == child.id:
+            st.success(f"Storybook ready: {ready_story.title}")
+            ready_cols = st.columns(2)
+            if ready_cols[0].button("Read storybook", type="primary", use_container_width=True):
+                st.session_state["selected_story_id"] = ready_story.id
+                st.switch_page("pages/3_Reading_Session.py")
+            if ready_cols[1].button("Open Reading Check", use_container_width=True):
+                st.session_state["selected_story_id"] = ready_story.id
+                st.session_state["open_reading_check"] = True
+                st.switch_page("pages/3_Reading_Session.py")
 
     left, right = st.columns([0.9, 1.25])
 
@@ -41,13 +67,14 @@ if child:
                 story = generate_storybook(child, theme_hint)
                 story_id = storage.save_story(story)
                 st.session_state["selected_story_id"] = story_id
+                st.session_state["story_ready_id"] = story_id
                 if status["configured"] and story.source != "oci":
                     error = last_genai_error()
                     st.session_state["generation_notice"] = {
                         "message": "OCI generation failed, so a local fallback story was saved for the demo.",
                         "detail": error[:500] if error else "",
                     }
-            st.switch_page("pages/3_Reading_Session.py")
+            st.rerun()
 
         panel(
             "Storybook contents",
@@ -90,5 +117,11 @@ if child:
                 metric_cols = st.columns(2)
                 metric_cols[0].metric("Vocabulary", vocab_count)
                 metric_cols[1].metric("Questions", question_count)
-                if st.button("Read this storybook", type="primary", use_container_width=True):
+                action_cols = st.columns(2)
+                if action_cols[0].button("Read this storybook", type="primary", use_container_width=True):
+                    st.session_state["selected_story_id"] = story.id
+                    st.switch_page("pages/3_Reading_Session.py")
+                if action_cols[1].button("Open Reading Check", use_container_width=True):
+                    st.session_state["selected_story_id"] = story.id
+                    st.session_state["open_reading_check"] = True
                     st.switch_page("pages/3_Reading_Session.py")
