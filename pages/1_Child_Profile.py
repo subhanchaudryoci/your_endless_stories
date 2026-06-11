@@ -8,7 +8,7 @@ from services.ui import child_selector, page_title, panel, profile_summary, setu
 
 
 setup_page("Child Profile")
-page_title("Child Profile", "Capture the minimum context needed to personalize safe reading practice.")
+page_title("Child Profile", "Select a reader or create a new one.")
 workflow_steps("profile")
 
 create_tab, manage_tab = st.tabs(["Create profile", "Manage profiles"])
@@ -22,18 +22,14 @@ with create_tab:
             interests = st.text_input("Interests", placeholder="space, soccer, animals")
             reading_goal = st.text_input("Reading goal", value="Improve comprehension and confidence")
             include_baseline = st.checkbox("Add baseline score", value=False)
-            baseline_score = st.slider("Baseline reading score", 0, 100, 70, disabled=not include_baseline)
+            baseline_score = st.slider("Baseline reading score", 0, 100, 70)
+            st.caption("The baseline is saved only when Add baseline score is checked.")
             submitted = st.form_submit_button("Create profile", type="primary")
     with guide_col:
         panel(
-            "Profile data",
+            "What this sets",
             "The app uses age for reading level, interests for theme, and goal plus baseline for progress context.",
-            accent="Why it matters",
-        )
-        panel(
-            "Demo target",
-            "A parent can create a profile, generate a story, and complete a scored session during a short live demo.",
-            accent="Acceptance",
+            accent="Personalization",
         )
 
     if submitted:
@@ -52,8 +48,7 @@ with create_tab:
             )
             child_id = storage.create_child(profile)
             st.session_state["selected_child_id"] = child_id
-            st.success("Profile created.")
-            st.page_link("pages/2_Generate_Story.py", label="Generate a storybook")
+            st.switch_page("pages/2_Generate_Story.py")
 
 with manage_tab:
     child = child_selector("Select profile")
@@ -73,8 +68,8 @@ with manage_tab:
                     0,
                     100,
                     int(child.baseline_score or 70),
-                    disabled=not has_baseline,
                 )
+                st.caption("The baseline is saved only when Use baseline score is checked.")
                 saved = st.form_submit_button("Save changes")
 
         if saved:
@@ -91,3 +86,6 @@ with manage_tab:
             )
             st.success("Profile updated.")
             st.rerun()
+
+        if st.button("Continue to storybooks", type="primary", use_container_width=True):
+            st.switch_page("pages/2_Generate_Story.py")

@@ -8,7 +8,7 @@ Your Endless Stories (YES!) is a child-safe, age-aware Streamlit storybook gener
 - Personalized storybook generation with title, story text, vocabulary, tricky words, and quiz questions
 - Reading help with phonics and decoding hints
 - Quiz flow with literal, sequence, vocabulary, and inference questions
-- Transparent 100-point score model
+- Transparent 100-point score model inferred from quiz answers and completion
 - Local SQLite persistence for profiles, stories, sessions, and progress
 - Parent dashboard with score trend, recent sessions, strengths, weak areas, and recommendations
 - Seed data and demo fallback for hackathon judging without live OCI credentials
@@ -87,9 +87,9 @@ Demo mode does not call any AI provider. It uses deterministic local story, quiz
 Each reading session is scored out of 100 points:
 
 - Comprehension: 40 points from quiz correctness
-- Phonics / decoding: 20 points from a 1-5 session rating
-- Fluency: 15 points from a 1-5 session rating
-- Independence: 15 points from a 1-5 session rating
+- Phonics / decoding: 20 points from vocabulary and phonics question performance
+- Fluency: 15 points from literal and sequence question performance
+- Independence: 15 points from answer completion, accuracy, and reduced "not sure" responses
 - Consistency: 10 points from comparison with recent sessions or baseline
 
 The saved score includes strengths, weak areas, and one recommendation for next practice.
@@ -98,9 +98,9 @@ The saved score includes strengths, weak areas, and one recommendation for next 
 
 1. Open the app with `streamlit run app.py`.
 2. Select the seeded child profile, Mia, or create a new profile.
-3. Generate a storybook from the profile.
-4. Open Reading Session, answer the quiz, set ratings, and save the score.
-5. Open Parent Dashboard to view trend, recent sessions, strengths, weak areas, and summary.
+3. Choose an existing storybook or generate a new one.
+4. Read the story, open the quiz, and answer the questions.
+5. Review the Proficiency Dashboard for score trend, strengths, weak areas, and next practice.
 
 ## Local Data
 
@@ -109,4 +109,3 @@ The saved score includes strengths, weak areas, and one recommendation for next 
 - Override database path with `YES_DB_PATH=/path/to/yes.db`
 
 No cloud storage or non-OCI external service is used.
-

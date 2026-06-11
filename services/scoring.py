@@ -25,11 +25,6 @@ def is_correct_answer(selected: str, expected: str) -> bool:
     return _normalize_answer(selected) == _normalize_answer(expected)
 
 
-def _rating_points(rating: int, weight: int) -> float:
-    rating = max(1, min(5, int(rating)))
-    return round((rating / 5) * weight, 1)
-
-
 def _consistency_points(profile: ChildProfile, prior_sessions: list[ReadingSession], current_base_points: float) -> float:
     current_scaled = (current_base_points / 90) * 100
     if prior_sessions:
@@ -54,6 +49,27 @@ def _area_percent(points: float, weight: int) -> float:
     return round((points / weight) * 100, 1) if weight else 0
 
 
+def _points_from_percent(percent: float, weight: int) -> float:
+    return round((max(0.0, min(100.0, percent)) / 100) * weight, 1)
+
+
+def _question_percent(question_results: list[dict[str, Any]], question_types: set[str], fallback_percent: float) -> float:
+    matches = [
+        result
+        for result in question_results
+        if str(result.get("type", "")).strip().lower().replace(" ", "_") in question_types
+    ]
+    if not matches:
+        return fallback_percent
+    correct = sum(1 for result in matches if result["correct"])
+    return round((correct / len(matches)) * 100, 1)
+
+
+def _is_answered(value: str) -> bool:
+    normalized = _normalize_answer(value)
+    return bool(normalized) and normalized not in {"choose an answer", "i am not sure", "not sure"}
+
+
 def _recommendation(weak_areas: list[str], strengths: list[str]) -> str:
     if "Comprehension" in weak_areas:
         return "Practice retelling the beginning, middle, and end before answering questions."
@@ -74,9 +90,6 @@ def calculate_session_score(
     profile: ChildProfile,
     questions: list[QuizQuestion],
     answers: dict[str, str],
-    phonics_rating: int,
-    fluency_rating: int,
-    independence_rating: int,
     prior_sessions: list[ReadingSession],
 ) -> tuple[ScoreBreakdown, float]:
     question_results: list[dict[str, Any]] = []
@@ -100,10 +113,28 @@ def calculate_session_score(
         )
 
     quiz_percent = round((correct_count / len(questions)) * 100, 1) if questions else 0.0
-    comprehension = round((quiz_percent / 100) * WEIGHTS["comprehension"], 1)
-    phonics_decoding = _rating_points(phonics_rating, WEIGHTS["phonics_decoding"])
-    fluency = _rating_points(fluency_rating, WEIGHTS["fluency"])
-    independence = _rating_points(independence_rating, WEIGHTS["independence"])
+    comprehension = _points_from_percent(quiz_percent, WEIGHTS["comprehension"])
+
+    phonics_percent = _question_percent(
+        question_results,
+        {"vocabulary", "phonics", "phonics_decoding", "decoding"},
+        quiz_percent,
+    )
+    fluency_percent = _question_percent(
+        question_results,
+        {"literal", "sequence", "sequencing"},
+        quiz_percent,
+    )
+    answered_count = sum(1 for result in question_results if _is_answered(str(result.get("selected", ""))))
+    unsure_count = sum(1 for result in question_results if "not sure" in _normalize_answer(str(result.get("selected", ""))))
+    question_count = len(questions)
+    completion_percent = round((answered_count / question_count) * 100, 1) if question_count else 0.0
+    unsure_penalty = round((unsure_count / question_count) * 20, 1) if question_count else 0.0
+    independence_percent = max(0.0, min(100.0, (completion_percent * 0.6) + (quiz_percent * 0.4) - unsure_penalty))
+
+    phonics_decoding = _points_from_percent(phonics_percent, WEIGHTS["phonics_decoding"])
+    fluency = _points_from_percent(fluency_percent, WEIGHTS["fluency"])
+    independence = _points_from_percent(independence_percent, WEIGHTS["independence"])
 
     base_points = comprehension + phonics_decoding + fluency + independence
     consistency = _consistency_points(profile, prior_sessions, base_points)
@@ -139,10 +170,18 @@ def calculate_session_score(
             "correct_count": correct_count,
             "question_count": len(questions),
             "question_results": question_results,
-            "ratings": {
-                "phonics_decoding": phonics_rating,
-                "fluency": fluency_rating,
-                "independence": independence_rating,
+            "inference_model": {
+                "phonics_decoding": "Vocabulary and phonics question correctness, falling back to overall quiz accuracy.",
+                "fluency": "Literal and sequence question correctness as a proxy for smooth reading and order tracking.",
+                "independence": "Answer completion, quiz accuracy, and reduced not-sure responses.",
+                "consistency": "Comparison with recent sessions or baseline score.",
+            },
+            "inferred_percents": {
+                "phonics_decoding": phonics_percent,
+                "fluency": fluency_percent,
+                "independence": round(independence_percent, 1),
+                "completion": completion_percent,
+                "not_sure_count": unsure_count,
             },
             "area_percents": area_scores,
         },
@@ -166,4 +205,3 @@ def aggregate_strengths_and_needs(sessions: list[ReadingSession]) -> dict[str, l
         "strengths": ranked_strengths or ["No sessions yet"],
         "weak_areas": ranked_needs or ["No major weak area"],
     }
-

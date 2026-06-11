@@ -22,11 +22,15 @@ from services.ui import (
 
 
 setup_page("Parent Dashboard")
-page_title("Parent Dashboard", "Make reading progress visible to parents after every session.")
+page_title("Proficiency Dashboard", "Review scores, trends, and the next practice step.")
 workflow_steps("dashboard")
 
 child = child_selector()
 if child:
+    latest_session_id = st.session_state.pop("latest_session_id", None)
+    if latest_session_id:
+        st.success("Session saved. Latest proficiency results are below.")
+
     profile_summary(child)
     stats = storage.profile_stats(child.id or 0)
     metric_cols = st.columns(4)
@@ -94,6 +98,7 @@ if child:
         panel("Strengths", ", ".join(aggregate["strengths"][:3]), accent="Observed")
         panel("Practice focus", ", ".join(aggregate["weak_areas"][:3]), accent="Next area")
         st.markdown(f'<div class="yes-note">{html.escape(latest.score.recommendation)}</div>', unsafe_allow_html=True)
+        st.caption("Scoring is inferred from quiz answers, answer completion, and recent progress.")
 
     st.subheader("Recent sessions")
     st.dataframe(

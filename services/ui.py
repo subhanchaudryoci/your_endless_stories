@@ -11,7 +11,7 @@ from services import storage
 
 
 def setup_page(title: str) -> None:
-    st.set_page_config(page_title=f"YES! | {title}", layout="wide")
+    st.set_page_config(page_title=f"YES! | {title}", layout="wide", initial_sidebar_state="collapsed")
     storage.init_db()
     st.markdown(
         """
@@ -29,10 +29,11 @@ def setup_page(title: str) -> None:
             --yes-muted: #65716b;
         }
         .stApp { background: #f6f4ed; }
+        header[data-testid="stHeader"] { background: #f6f4ed; }
         .block-container {
-            padding-top: 1.1rem;
+            padding-top: 2.55rem;
             padding-bottom: 3rem;
-            max-width: 1220px;
+            max-width: 1180px;
         }
         h1, h2, h3 { letter-spacing: 0; }
         h1 { color: var(--yes-charcoal); }
@@ -56,36 +57,50 @@ def setup_page(title: str) -> None:
             font-weight: 650;
         }
         div[data-testid="stTabs"] button p { font-weight: 650; }
+        .yes-main-menu {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 2.15rem 0 0.65rem;
+        }
+        .yes-main-menu a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 2.15rem;
+            padding: 0.28rem 0.7rem;
+            border: 1px solid var(--yes-line);
+            border-radius: 8px;
+            background: #fffdf7;
+            color: var(--yes-charcoal);
+            text-decoration: none;
+            font-weight: 750;
+            font-size: 0.86rem;
+        }
+        .yes-main-menu a.active {
+            background: var(--yes-charcoal);
+            color: #ffffff;
+            border-color: var(--yes-charcoal);
+        }
         .yes-hero {
             background: var(--yes-charcoal);
             border: 1px solid #343b37;
             border-radius: 8px;
-            padding: 1.35rem 1.55rem;
+            padding: 0.95rem 1.1rem;
             color: #ffffff;
-            margin-bottom: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .yes-hero:after {
-            content: "";
-            position: absolute;
-            right: 1.1rem;
-            top: 1.1rem;
-            width: 9rem;
-            height: 4.2rem;
-            border: 1px solid rgba(243, 205, 105, 0.7);
+            margin-bottom: 0.85rem;
         }
         .yes-hero h1 {
             color: #ffffff;
-            margin: 0.1rem 0 0.25rem 0;
-            font-size: clamp(2rem, 5vw, 3.25rem);
-            line-height: 1.03;
+            margin: 0.08rem 0 0.2rem 0;
+            font-size: clamp(1.7rem, 3.3vw, 2.55rem);
+            line-height: 1.05;
         }
         .yes-hero p {
-            max-width: 790px;
+            max-width: 760px;
             margin: 0;
             color: #ede7d8;
-            font-size: 1.02rem;
+            font-size: 0.98rem;
         }
         .yes-kicker {
             color: var(--yes-gold);
@@ -164,16 +179,24 @@ def setup_page(title: str) -> None:
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
             gap: 0.65rem;
-            margin: 0.8rem 0 1rem;
+            margin: 0.65rem 0 1rem;
         }
-        .yes-step {
+        .yes-step-link {
+            display: block;
             background: #ffffff;
             border: 1px solid var(--yes-line);
             border-radius: 8px;
             padding: 0.72rem;
             min-height: 86px;
+            text-decoration: none;
+            transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
         }
-        .yes-step.active {
+        .yes-step-link:hover {
+            border-color: var(--yes-gold-deep);
+            box-shadow: 0 6px 18px rgba(32, 39, 36, 0.08);
+            transform: translateY(-1px);
+        }
+        .yes-step-link.active {
             border-color: var(--yes-gold-deep);
             box-shadow: inset 0 0 0 2px rgba(243, 205, 105, 0.3);
         }
@@ -259,16 +282,99 @@ def setup_page(title: str) -> None:
             padding: 0.85rem;
             color: #24463a;
         }
+        .yes-reader-shell {
+            background: #fffaf0;
+            border: 1px solid var(--yes-line);
+            border-radius: 8px;
+            padding: clamp(1rem, 2.5vw, 1.65rem);
+            margin-bottom: 0.9rem;
+        }
+        .yes-reader-title {
+            color: var(--yes-charcoal);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            line-height: 1.02;
+            font-weight: 850;
+            margin-bottom: 0.35rem;
+        }
+        .yes-reader-meta {
+            color: var(--yes-muted);
+            font-weight: 650;
+            margin-bottom: 1rem;
+        }
+        .yes-reader-text {
+            color: #202724;
+            font-size: clamp(1.22rem, 2.1vw, 1.55rem);
+            line-height: 1.82;
+        }
+        .yes-reader-text p {
+            margin: 0 0 1.05rem;
+        }
+        .yes-reader-text mark {
+            background: #ffe89a;
+            color: #1f241f;
+            padding: 0.02rem 0.18rem;
+            border-radius: 5px;
+        }
+        .yes-quiz-ready {
+            background: #202724;
+            border-radius: 8px;
+            color: #ffffff;
+            padding: 0.95rem;
+            margin-bottom: 0.9rem;
+        }
+        .yes-quiz-ready strong {
+            display: block;
+            color: var(--yes-gold);
+            margin-bottom: 0.25rem;
+        }
         @media (max-width: 760px) {
             .yes-quick-grid {
                 grid-template-columns: 1fr;
             }
-            .yes-hero:after { display: none; }
+            .yes-main-menu a { flex: 1 1 auto; justify-content: center; }
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
+    active = _menu_key_for_title(title)
+    sidebar_menu()
+    main_menu(active)
+
+
+def _menu_key_for_title(title: str) -> str:
+    return {
+        "Home": "home",
+        "Child Profile": "profiles",
+        "Generate Story": "",
+        "Reading Session": "",
+        "Parent Dashboard": "dashboard",
+    }.get(title, "")
+
+
+def main_menu(active: str = "") -> None:
+    items = [
+        ("home", "Home", "/"),
+        ("profiles", "Profiles", "/Child_Profile"),
+        ("dashboard", "Dashboard", "/Parent_Dashboard"),
+    ]
+    markup = ['<nav class="yes-main-menu" aria-label="Main navigation">']
+    for key, label, href in items:
+        active_class = " active" if key == active else ""
+        markup.append(f'<a class="{active_class}" href="{href}" target="_self">{html.escape(label)}</a>')
+    markup.append("</nav>")
+    st.markdown("".join(markup), unsafe_allow_html=True)
+
+
+def sidebar_menu() -> None:
+    with st.sidebar:
+        st.markdown("### Your Endless Stories")
+        st.caption("Powered by OCI")
+        st.markdown('<a href="/" target="_self">Home</a>', unsafe_allow_html=True)
+        st.page_link("pages/1_Child_Profile.py", label="Child Profiles")
+        st.page_link("pages/2_Generate_Story.py", label="Storybooks")
+        st.page_link("pages/3_Reading_Session.py", label="Read Story")
+        st.page_link("pages/4_Parent_Dashboard.py", label="Proficiency Dashboard")
 
 
 def page_title(title: str, subtitle: str = "", meta: list[str] | None = None) -> None:
@@ -278,13 +384,15 @@ def page_title(title: str, subtitle: str = "", meta: list[str] | None = None) ->
 def hero(title: str, subtitle: str = "", eyebrow: str = "Your Endless Stories | Powered by OCI", meta: list[str] | None = None) -> None:
     meta = meta or []
     meta_html = "".join(f'<span class="yes-pill">{html.escape(item)}</span>' for item in meta)
+    subtitle_html = f'<p>{html.escape(subtitle)}</p>' if subtitle else ""
+    meta_block = f'<div class="yes-hero-meta">{meta_html}</div>' if meta_html else ""
     st.markdown(
         (
             f'<section class="yes-hero">'
             f'<div class="yes-kicker">{html.escape(eyebrow)}</div>'
             f'<h1>{html.escape(title)}</h1>'
-            f'<p>{html.escape(subtitle)}</p>'
-            f'<div class="yes-hero-meta">{meta_html}</div>'
+            f'{subtitle_html}'
+            f'{meta_block}'
             f'</section>'
         ),
         unsafe_allow_html=True,
@@ -304,20 +412,20 @@ def genai_status_banner(status: dict) -> None:
 
 def workflow_steps(active: str) -> None:
     steps = [
-        ("profile", "1", "Profile", "Age, interests, goal"),
-        ("story", "2", "Storybook", "OCI-generated reading set"),
-        ("session", "3", "Session", "Quiz plus transparent score"),
-        ("dashboard", "4", "Dashboard", "Progress and next practice"),
+        ("profile", "1", "Profile", "Pick or create a reader", "/Child_Profile"),
+        ("story", "2", "Storybook", "Choose or generate", "/Generate_Story"),
+        ("session", "3", "Read", "Story plus quiz", "/Reading_Session"),
+        ("dashboard", "4", "Dashboard", "Scores and trends", "/Parent_Dashboard"),
     ]
     markup = ['<div class="yes-flow">']
-    for key, number, title, copy in steps:
+    for key, number, title, copy, href in steps:
         active_class = " active" if key == active else ""
         markup.append(
-            f'<div class="yes-step{active_class}">'
+            f'<a class="yes-step-link{active_class}" href="{href}" target="_self">'
             f'<div class="yes-step-number">{html.escape(number)}</div>'
             f'<span class="yes-step-title">{html.escape(title)}</span>'
             f'<div class="yes-step-copy">{html.escape(copy)}</div>'
-            f'</div>'
+            f'</a>'
         )
     markup.append("</div>")
     st.markdown("".join(markup), unsafe_allow_html=True)
@@ -411,10 +519,4 @@ def format_date(value: str) -> str:
 def score_badge(score: float | None) -> str:
     if score is None:
         return "No score yet"
-    if score >= 85:
-        label = "Strong"
-    elif score >= 70:
-        label = "Growing"
-    else:
-        label = "Practice focus"
-    return f"{score:.0f}/100 - {label}"
+    return f"{score:.0f}/100"

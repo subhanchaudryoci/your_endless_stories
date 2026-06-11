@@ -11,16 +11,101 @@ from services.scoring import WEIGHTS, calculate_session_score
 from services.ui import child_selector, format_date, page_title, panel, setup_page, workflow_steps
 
 
+def _highlight_terms(text: str, terms: list[str]) -> str:
+    clean_terms = sorted({term.strip() for term in terms if term.strip()}, key=len, reverse=True)
+    if not clean_terms:
+        return html.escape(text)
+    pattern = re.compile(r"\b(" + "|".join(re.escape(term) for term in clean_terms) + r")\b", re.IGNORECASE)
+    pieces: list[str] = []
+    last_end = 0
+    for match in pattern.finditer(text):
+        pieces.append(html.escape(text[last_end : match.start()]))
+        pieces.append(f"<mark>{html.escape(match.group(0))}</mark>")
+        last_end = match.end()
+    pieces.append(html.escape(text[last_end:]))
+    return "".join(pieces)
+
+
+def _story_html(text: str, highlight_terms: list[str]) -> str:
+    paragraphs = [part.strip() for part in text.split("\n") if part.strip()]
+    if len(paragraphs) <= 1:
+        sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()]
+        paragraphs = [" ".join(sentences[index : index + 3]) for index in range(0, len(sentences), 3)]
+    return "".join(f"<p>{_highlight_terms(paragraph, highlight_terms)}</p>" for paragraph in paragraphs)
+
+
+def _question_options(question_answer: str, options: list[str]) -> list[str]:
+    choices: list[str] = []
+    for option in options:
+        if option and option not in choices:
+            choices.append(option)
+    if question_answer and question_answer not in choices:
+        choices.append(question_answer)
+    if "I am not sure" not in choices:
+        choices.append("I am not sure")
+    return ["Choose an answer"] + choices
+
+
+def _render_quiz_form(child, story) -> None:
+    with st.form(f"quiz_{child.id}_{story.id}"):
+        answers: dict[str, str] = {}
+        for index, question in enumerate(story.questions):
+            st.markdown(
+                (
+                    f'<div class="yes-question">'
+                    f'<div class="yes-question-type">{html.escape(question.question_type.title())}</div>'
+                    f'<strong>{index + 1}. {html.escape(question.question)}</strong>'
+                    f'</div>'
+                ),
+                unsafe_allow_html=True,
+            )
+            answers[str(index)] = st.radio(
+                "Answer",
+                _question_options(question.answer, question.options),
+                index=0,
+                key=f"answer_{story.id}_{index}",
+                label_visibility="collapsed",
+            )
+
+        notes = st.text_area("Parent note", placeholder="optional")
+        submitted = st.form_submit_button("Submit quiz", type="primary")
+
+    if submitted:
+        prior_sessions = storage.list_sessions(child.id or 0)
+        score, quiz_percent = calculate_session_score(child, story.questions, answers, prior_sessions)
+        session = ReadingSession(
+            id=None,
+            child_id=child.id or 0,
+            story_id=story.id or 0,
+            answers=answers,
+            score=score,
+            quiz_score=quiz_percent,
+            total_score=score.total,
+            notes=notes,
+        )
+        session_id = storage.save_session(session)
+        st.session_state["latest_session_id"] = session_id
+        st.session_state["selected_child_id"] = child.id
+        st.session_state["selected_story_id"] = story.id
+        st.switch_page("pages/4_Parent_Dashboard.py")
+
+
 setup_page("Reading Session")
-page_title("Reading Session", "Turn each storybook into measurable comprehension and phonics practice.")
+page_title("Reading Time", "Read the story, then open the quiz when finished.")
 workflow_steps("session")
 
-child = child_selector()
+generation_notice = st.session_state.pop("generation_notice", None)
+if generation_notice:
+    st.warning(generation_notice["message"])
+    if generation_notice.get("detail"):
+        st.caption(generation_notice["detail"])
+
+child = child_selector("Reader")
 if child:
     stories = storage.list_stories(child.id or 0)
     if not stories:
-        st.info("Generate a storybook before starting a reading session.")
-        st.page_link("pages/2_Generate_Story.py", label="Generate storybook")
+        st.info("Choose or generate a storybook before reading.")
+        st.page_link("pages/2_Generate_Story.py", label="Go to storybooks")
         st.stop()
 
     selected_id = st.session_state.get("selected_story_id")
@@ -40,32 +125,59 @@ if child:
     if story and story.id:
         st.session_state["selected_story_id"] = story.id
 
-    story_col, help_col = st.columns([1.45, 1])
+    if not story.questions:
+        st.error("This storybook does not have quiz questions. Generate a new storybook to run a session.")
+        st.stop()
+
+    help_terms = story.tricky_words or [item.word for item in story.vocabulary]
+    story_col, help_col = st.columns([1.55, 0.8])
+
     with story_col:
-        st.subheader(story.title)
-        large_text = st.toggle("Large reading view", value=False)
-        escaped_story = html.escape(story.story_text).replace("\n", "<br>")
-        font_size = "1.3rem" if large_text else "1.08rem"
+        story_markup = _story_html(story.story_text, help_terms)
         st.markdown(
-            f'<div class="yes-story" style="font-size:{font_size};">{escaped_story}</div>',
+            (
+                f'<section class="yes-reader-shell">'
+                f'<div class="yes-reader-title">{html.escape(story.title)}</div>'
+                f'<div class="yes-reader-meta">Reader: {html.escape(child.name)} | Highlighted words are good ones to sound out.</div>'
+                f'<div class="yes-reader-text">{story_markup}</div>'
+                f'</section>'
+            ),
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            (
+                '<div class="yes-quiz-ready">'
+                '<strong>Finished reading?</strong>'
+                'Open the quiz when the child is ready. The score is inferred from quiz answers and completion.'
+                '</div>'
+            ),
             unsafe_allow_html=True,
         )
 
-        with st.expander("Line-by-line view"):
-            sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", story.story_text) if part.strip()]
-            for sentence in sentences:
-                st.write(sentence)
+        if hasattr(st, "dialog"):
+            @st.dialog("Reading check")
+            def quiz_dialog() -> None:
+                _render_quiz_form(child, story)
+
+            if st.button("I am done reading - start quiz", type="primary", use_container_width=True):
+                quiz_dialog()
+        else:
+            if st.button("I am done reading - start quiz", type="primary", use_container_width=True):
+                st.session_state["show_inline_quiz"] = True
+            if st.session_state.get("show_inline_quiz"):
+                _render_quiz_form(child, story)
 
     with help_col:
-        st.subheader("Reading help")
+        st.subheader("Words to try")
         if story.vocabulary:
             vocab_markup = ['<div class="yes-word-grid">']
             for item in story.vocabulary:
+                pattern = f" ({html.escape(item.pattern)})" if item.pattern else ""
                 vocab_markup.append(
                     f'<div class="yes-word-card">'
                     f'<div class="yes-word">{html.escape(item.word)}</div>'
                     f'<div>{html.escape(item.meaning)}</div>'
-                    f'<div class="yes-hint">{html.escape(item.hint)}</div>'
+                    f'<div class="yes-hint">{html.escape(item.hint)}{pattern}</div>'
                     f'</div>'
                 )
             vocab_markup.append("</div>")
@@ -73,81 +185,12 @@ if child:
         else:
             st.info("No vocabulary list found for this story.")
 
-        st.subheader("Scoring model")
-        score_cols = st.columns(2)
-        for index, (label, weight) in enumerate(WEIGHTS.items()):
-            with score_cols[index % 2]:
-                panel(label.replace("_", " ").title(), f"{weight} points", accent="Score")
-
-    st.divider()
-    st.subheader("Quiz")
-    with st.form(f"quiz_{story.id}"):
-        answers: dict[str, str] = {}
-        for index, question in enumerate(story.questions):
-            st.markdown(
-                (
-                    f'<div class="yes-question">'
-                    f'<div class="yes-question-type">{html.escape(question.question_type.title())}</div>'
-                    f'<strong>{index + 1}. {html.escape(question.question)}</strong>'
-                    f'</div>'
-                ),
-                unsafe_allow_html=True,
-            )
-            options = question.options or ["I am not sure"]
-            answers[str(index)] = st.radio(
-                "Answer",
-                options,
-                key=f"answer_{story.id}_{index}",
-                label_visibility="collapsed",
-            )
-
-        rating_cols = st.columns(3)
-        with rating_cols[0]:
-            phonics_rating = st.slider("Phonics / decoding", 1, 5, 4)
-        with rating_cols[1]:
-            fluency_rating = st.slider("Fluency", 1, 5, 4)
-        with rating_cols[2]:
-            independence_rating = st.slider("Independence", 1, 5, 4)
-        notes = st.text_area("Session notes", placeholder="optional")
-        submitted = st.form_submit_button("Score and save session", type="primary")
-
-    if submitted:
-        prior_sessions = storage.list_sessions(child.id or 0)
-        score, quiz_percent = calculate_session_score(
-            child,
-            story.questions,
-            answers,
-            phonics_rating,
-            fluency_rating,
-            independence_rating,
-            prior_sessions,
+        st.subheader("Score evidence")
+        panel(
+            "Inferred score",
+            "Quiz answers drive comprehension, vocabulary/phonics, fluency, independence, and consistency.",
+            accent="No sliders",
         )
-        session = ReadingSession(
-            id=None,
-            child_id=child.id or 0,
-            story_id=story.id or 0,
-            answers=answers,
-            score=score,
-            quiz_score=quiz_percent,
-            total_score=score.total,
-            notes=notes,
-        )
-        storage.save_session(session)
-
-        st.success(f"Session saved. Total score: {score.total:.0f}/100")
-        metric_cols = st.columns(5)
-        metric_cols[0].metric("Comprehension", f"{score.comprehension:.0f}/{WEIGHTS['comprehension']}")
-        metric_cols[1].metric("Phonics", f"{score.phonics_decoding:.0f}/{WEIGHTS['phonics_decoding']}")
-        metric_cols[2].metric("Fluency", f"{score.fluency:.0f}/{WEIGHTS['fluency']}")
-        metric_cols[3].metric("Independence", f"{score.independence:.0f}/{WEIGHTS['independence']}")
-        metric_cols[4].metric("Consistency", f"{score.consistency:.0f}/{WEIGHTS['consistency']}")
-
-        st.write(f"Strengths: {', '.join(score.strengths)}")
-        st.write(f"Practice focus: {', '.join(score.weak_areas)}")
-        st.markdown(f'<div class="yes-note">{html.escape(score.recommendation)}</div>', unsafe_allow_html=True)
-
-        with st.expander("Question feedback"):
-            for result in score.details["question_results"]:
-                status = "Correct" if result["correct"] else "Review"
-                st.write(f"**{status}:** {result['question']}")
-                st.caption(f"Answer: {result['answer']} | {result['explanation']}")
+        with st.expander("100-point model"):
+            for label, weight in WEIGHTS.items():
+                st.write(f"**{label.replace('_', ' ').title()}**: {weight} points")
