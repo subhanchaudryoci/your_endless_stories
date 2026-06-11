@@ -1,0 +1,162 @@
+{
+  "children": [
+    {
+      "name": "Mia",
+      "age": 7,
+      "interests": ["space", "cats", "drawing"],
+      "reading_goal": "Read short stories with smoother fluency and stronger comprehension",
+      "baseline_score": 68,
+      "created_at": "2026-05-20T16:00:00+00:00",
+      "stories": [
+        {
+          "title": "Mia and the Moon Cat Map",
+          "theme": "space and cats",
+          "source": "seed",
+          "created_at": "2026-06-01T16:00:00+00:00",
+          "story_text": "Mia drew a silver moon on the back of her notebook. Beside it, she drew a small cat with a star on its collar. That night, the cat in the picture blinked and tapped the page with one paw. A tiny map appeared. The first clue said, \"Find the quiet crater.\" Mia read the clue twice. She sounded out crater in two parts: cra-ter. Then she followed a dotted line past three bright rocks. At the quiet crater, Mia found a blue flag. The flag said, \"Look for the clue that glows.\" Mia waited, watched, and noticed a soft light under a moon shell. Inside was the last clue: \"Strong readers use details.\" Mia smiled. She used the map, the flag, and the glowing shell to find the moon cat's home. The cat purred and gave Mia a bookmark shaped like a star.",
+          "vocabulary": [
+            {
+              "word": "crater",
+              "meaning": "a bowl-shaped hole on the moon",
+              "hint": "Break it into cra-ter",
+              "pattern": "two syllables"
+            },
+            {
+              "word": "clue",
+              "meaning": "a hint that helps solve something",
+              "hint": "The ue sounds like oo",
+              "pattern": "ue vowel team"
+            },
+            {
+              "word": "glows",
+              "meaning": "shines with soft light",
+              "hint": "Starts with the gl blend",
+              "pattern": "gl blend"
+            },
+            {
+              "word": "details",
+              "meaning": "small pieces of information",
+              "hint": "Say de-tails",
+              "pattern": "vowel team ai"
+            },
+            {
+              "word": "bookmark",
+              "meaning": "something that holds your place in a book",
+              "hint": "Book plus mark",
+              "pattern": "compound word"
+            }
+          ],
+          "tricky_words": ["crater", "clue", "glows", "details", "bookmark"],
+          "questions": [
+            {
+              "question_type": "literal",
+              "question": "What appeared on Mia's notebook?",
+              "options": ["A tiny map", "A lunch menu", "A rain cloud"],
+              "answer": "A tiny map",
+              "explanation": "The moon cat tapped the page and a tiny map appeared."
+            },
+            {
+              "question_type": "sequence",
+              "question": "What did Mia find before the moon shell?",
+              "options": ["A blue flag", "A red bike", "A sleeping dog"],
+              "answer": "A blue flag",
+              "explanation": "Mia found the blue flag at the quiet crater before seeing the shell."
+            },
+            {
+              "question_type": "vocabulary",
+              "question": "What does crater mean in the story?",
+              "options": ["A bowl-shaped hole", "A kind of snack", "A loud song"],
+              "answer": "A bowl-shaped hole",
+              "explanation": "A crater is a bowl-shaped hole on the moon."
+            },
+            {
+              "question_type": "inference",
+              "question": "Why did Mia read the first clue twice?",
+              "options": ["To understand it better", "To erase the words", "To make the cat sleep"],
+              "answer": "To understand it better",
+              "explanation": "Rereading helped Mia figure out what to do next."
+            }
+          ],
+          "sessions": [
+            {
+              "created_at": "2026-06-02T16:00:00+00:00",
+              "answers": {
+                "0": "A tiny map",
+                "1": "A red bike",
+                "2": "A bowl-shaped hole",
+                "3": "To understand it better"
+              },
+              "quiz_score": 75,
+              "total_score": 74,
+              "score": {
+                "phonics_decoding": 16,
+                "fluency": 12,
+                "comprehension": 30,
+                "independence": 9,
+                "consistency": 7,
+                "total": 74,
+                "strengths": ["Comprehension", "Phonics and decoding", "Fluency"],
+                "weak_areas": ["Independence"],
+                "recommendation": "Let Mia try each question first, then offer one hint if needed.",
+                "details": {
+                  "quiz_percent": 75
+                }
+              }
+            },
+            {
+              "created_at": "2026-06-05T16:00:00+00:00",
+              "answers": {
+                "0": "A tiny map",
+                "1": "A blue flag",
+                "2": "A kind of snack",
+                "3": "To understand it better"
+              },
+              "quiz_score": 75,
+              "total_score": 79,
+              "score": {
+                "phonics_decoding": 16,
+                "fluency": 12,
+                "comprehension": 30,
+                "independence": 12,
+                "consistency": 9,
+                "total": 79,
+                "strengths": ["Phonics and decoding", "Fluency", "Independence"],
+                "weak_areas": ["Comprehension"],
+                "recommendation": "Practice retelling the beginning, middle, and end before answering questions.",
+                "details": {
+                  "quiz_percent": 75
+                }
+              }
+            },
+            {
+              "created_at": "2026-06-08T16:00:00+00:00",
+              "answers": {
+                "0": "A tiny map",
+                "1": "A blue flag",
+                "2": "A bowl-shaped hole",
+                "3": "To understand it better"
+              },
+              "quiz_score": 100,
+              "total_score": 86,
+              "score": {
+                "phonics_decoding": 16,
+                "fluency": 12,
+                "comprehension": 40,
+                "independence": 9,
+                "consistency": 9,
+                "total": 86,
+                "strengths": ["Comprehension", "Phonics and decoding", "Fluency", "Consistency"],
+                "weak_areas": ["Independence"],
+                "recommendation": "Let Mia answer first, then review one tricky question together.",
+                "details": {
+                  "quiz_percent": 100
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
